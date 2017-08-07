@@ -1,0 +1,99 @@
+package me.davisallen.cupcake;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.util.Log;
+import android.widget.RemoteViews;
+import android.widget.RemoteViewsService;
+
+import java.util.ArrayList;
+
+import me.davisallen.cupcake.pojo.Ingredient;
+
+import static me.davisallen.cupcake.utils.JsonUtils.RECIPE_INGREDIENTS;
+
+/**
+ * Package Name:   me.davisallen.cupcake.Widget
+ * Project:        Cupcake
+ * Created by davis, on 8/5/17
+ */
+
+public class IngredientsViewsFactory implements RemoteViewsService.RemoteViewsFactory {
+
+    private static final String LOG_TAG = IngredientsViewsFactory.class.getSimpleName();
+
+    private Context mContext;
+    private ArrayList<Ingredient> mIngredients;
+
+    public IngredientsViewsFactory(Context context, @Nullable Bundle recipeInfo) {
+        mContext = context;
+        if (recipeInfo != null) {
+            mIngredients = recipeInfo.getParcelableArrayList(RECIPE_INGREDIENTS);
+        }
+    }
+
+    @Override
+    public void onCreate() {
+
+    }
+
+    @Override
+    public void onDataSetChanged() {
+
+    }
+
+    @Override
+    public void onDestroy() {
+
+    }
+
+    @Override
+    public int getCount() {
+        if (mIngredients != null) {
+            return mIngredients.size();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public RemoteViews getViewAt(int i) {
+        Log.d(LOG_TAG, "view position: " + i);
+
+        RemoteViews row=new RemoteViews(
+                mContext.getPackageName(),
+                R.layout.row
+        );
+
+        row.setTextViewText(R.id.widget_list_item_text_view, mIngredients.get(i).toString());
+
+        // Intent to open detail activity with extra bundle
+//        Intent intent=new Intent();
+//        Bundle extras=new Bundle();
+//        intent.putExtras(extras);
+//        row.setOnClickFillInIntent(R.id.widget_list_item_text_view, intent);
+
+        return(row);
+    }
+
+    @Override
+    public RemoteViews getLoadingView() {
+        return null;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 1;
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return i;
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return true;
+    }
+}

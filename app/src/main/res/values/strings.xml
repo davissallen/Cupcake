@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Cupcake</string>
+    <string name="content_description_recipe_image">Thumbnail image of recipe</string>
+    <string name="cupcake_icon">Cupcake icon</string>
+    <string name="ingredients_title">Ingredients</string>
+    <string name="step_title">step title</string>
+    <string name="step_description">step description</string>
+    <string name="previous_button">previous button</string>
+    <string name="next_button">next button</string>
+    <string name="empty_string" />
+    <string name="widget_no_recipe_text">Tap to select a recipe!</string>
+    <string name="button_previous">Previous</string>
+    <string name="button_next">Next</string>
+</resources>
