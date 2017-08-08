@@ -20,7 +20,6 @@ import me.davisallen.cupcake.pojo.Recipe;
 
 import static me.davisallen.cupcake.utils.JsonUtils.RECIPE_INGREDIENTS;
 import static me.davisallen.cupcake.utils.JsonUtils.RECIPE_NAME;
-import static me.davisallen.cupcake.utils.JsonUtils.RECIPE_SERVINGS;
 import static me.davisallen.cupcake.utils.JsonUtils.RECIPE_STEPS;
 import static me.davisallen.cupcake.utils.ToastUtils.makeCustomToast;
 
@@ -78,7 +77,6 @@ public class ViewRecipesActivity extends AppCompatActivity implements
         recipeDetail.putString(RECIPE_NAME, clickedRecipe.getName());
         recipeDetail.putParcelableArrayList(RECIPE_STEPS, clickedRecipe.getSteps());
         recipeDetail.putParcelableArrayList(RECIPE_INGREDIENTS, clickedRecipe.getIngredients());
-        recipeDetail.putInt(RECIPE_SERVINGS, clickedRecipe.getServings());
 
         Intent openRecipeDetailIntent = new Intent(this, RecipeDetailActivity.class);
         openRecipeDetailIntent.putExtra(EXTRA_RECIPE_DETAIL, recipeDetail);

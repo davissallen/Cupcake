@@ -46,7 +46,7 @@ public class StepDetailFragment extends Fragment {
     private static final String STEP_PARAM = "step";
 
     private Step mStep;
-    private FragmentNavButtonListener mListener;
+    private NavButtonListener mListener;
     private Context mContext;
     private int mCurrentPosition;
     private int mNumberOfSteps;
@@ -54,7 +54,7 @@ public class StepDetailFragment extends Fragment {
     private SimpleExoPlayer mPlayer;
     private MediaSource mVideoSource;
 
-    public interface FragmentNavButtonListener {
+    public interface NavButtonListener {
         void onButtonClick(int clickedItemId, int position, int numberOfSteps);
     }
 
@@ -63,7 +63,7 @@ public class StepDetailFragment extends Fragment {
     }
 
     public static StepDetailFragment newInstance(Step step,
-                                                 FragmentNavButtonListener listener,
+                                                 NavButtonListener listener,
                                                  int position,
                                                  int numberOfSteps) {
         StepDetailFragment fragment = new StepDetailFragment();
@@ -74,7 +74,7 @@ public class StepDetailFragment extends Fragment {
     }
 
     public void setArguments(Bundle args,
-                             FragmentNavButtonListener listener,
+                             NavButtonListener listener,
                              int position,
                              int numberOfSteps) {
         setArguments(args);
@@ -162,8 +162,8 @@ public class StepDetailFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof FragmentNavButtonListener) {
-            mListener = (FragmentNavButtonListener) context;
+        if (context instanceof NavButtonListener) {
+            mListener = (NavButtonListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");

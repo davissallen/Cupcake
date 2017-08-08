@@ -9,7 +9,8 @@
         android:id="@+id/recipe_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:background="@color/colorPrimaryLight"/>
 
     <FrameLayout
         android:id="@+id/splash_screen_layout"

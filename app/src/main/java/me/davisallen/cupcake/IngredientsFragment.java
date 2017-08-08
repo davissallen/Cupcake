@@ -20,23 +20,16 @@ import me.davisallen.cupcake.pojo.Ingredient;
 public class IngredientsFragment extends Fragment {
     private static final String INGREDIENTS_ARRAYLIST = "ingredients_array_list";
 
-    @BindView(R.id.fragment_ingredients_recycler_view) RecyclerView ingredientsFragmentRecyclerView;
+    @BindView(R.id.fragment_ingredients_recycler_view) RecyclerView mIngredientsFragmentRecyclerView;
     private Unbinder unbinder;
 
     private ArrayList<Ingredient> mIngredients;
-    private RecyclerView.Adapter mAdapter;
+    private IngredientsRecyclerViewAdapter mAdapter;
 
     public IngredientsFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param ingredients Parameter 1.
-     * @return A new instance of fragment IngredientsFragment.
-     */
     public static IngredientsFragment newInstance(ArrayList<Ingredient> ingredients) {
         IngredientsFragment fragment = new IngredientsFragment();
         Bundle args = new Bundle();
@@ -56,7 +49,8 @@ public class IngredientsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_ingredients, container, false);
+        View view = inflater.inflate(
+                R.layout.fragment_ingredients, container, false);
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
@@ -64,14 +58,14 @@ public class IngredientsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        ingredientsFragmentRecyclerView.setLayoutManager(layoutManager);
+        mIngredientsFragmentRecyclerView.setLayoutManager(layoutManager);
         // set fixed size for efficiency
-        ingredientsFragmentRecyclerView.setHasFixedSize(true);
+        mIngredientsFragmentRecyclerView.setHasFixedSize(true);
 
         // get adapter reference
         mAdapter = new IngredientsRecyclerViewAdapter(mIngredients);
         // set adapter onto RecyclerView
-        ingredientsFragmentRecyclerView.setAdapter(mAdapter);
+        mIngredientsFragmentRecyclerView.setAdapter(mAdapter);
     }
 
     @Override

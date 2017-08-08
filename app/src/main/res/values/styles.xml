@@ -32,6 +32,6 @@
 
     <style name="StepDescription" parent="AppTheme" >
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/colorSecondaryText</item>
+        <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
 </resources>
