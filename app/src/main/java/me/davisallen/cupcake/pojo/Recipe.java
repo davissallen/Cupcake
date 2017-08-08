@@ -1,9 +1,6 @@
 package me.davisallen.cupcake.pojo;
 
-import java.net.URL;
 import java.util.ArrayList;
-
-import me.davisallen.cupcake.utils.UrlUtils;
 
 /**
  * Package name: me.davisallen.cake
@@ -18,15 +15,15 @@ public class Recipe {
     private ArrayList<Ingredient> ingredients;
     private ArrayList<Step> steps;
     private int servings;
-    private String image;
+    private String imagePath;
 
-    public Recipe(int id, String name, ArrayList<Ingredient> ingredients, ArrayList<Step> steps, int servings, String image) {
+    public Recipe(int id, String name, ArrayList<Ingredient> ingredients, ArrayList<Step> steps, int servings, String imagePath) {
         this.id = id;
         this.name = name;
         this.ingredients = ingredients;
         this.steps = steps;
         this.servings = servings;
-        this.image = image;
+        this.imagePath = imagePath;
     }
 
     public int getId() {
@@ -49,8 +46,8 @@ public class Recipe {
         return servings;
     }
 
-    public URL getImage() {
-        return UrlUtils.convertStringToURL(image);
+    public String getImagePath() {
+        return imagePath;
     }
 
 }

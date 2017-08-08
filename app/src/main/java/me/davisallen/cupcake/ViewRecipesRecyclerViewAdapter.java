@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -25,10 +27,14 @@ public class ViewRecipesRecyclerViewAdapter extends
 
     private final ListItemClickListener mOnClickListener;
     private ArrayList<Recipe> mRecipes;
+    private Context mContext;
 
-    public ViewRecipesRecyclerViewAdapter(ListItemClickListener listener, ArrayList<Recipe> recipes) {
+    public ViewRecipesRecyclerViewAdapter(ListItemClickListener listener,
+                                          ArrayList<Recipe> recipes,
+                                          Context context) {
         mOnClickListener = listener;
         mRecipes = recipes;
+        mContext = context;
     }
 
     public class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -68,8 +74,18 @@ public class ViewRecipesRecyclerViewAdapter extends
 
     @Override
     public void onBindViewHolder(RecipeViewHolder viewHolder, final int position) {
-        viewHolder.recipeTitleTextView.setText(mRecipes.get(position).getName());
-        viewHolder.recipeImageView.setImageResource(R.drawable.birthday);
+        Recipe recipe = mRecipes.get(position);
+
+        viewHolder.recipeTitleTextView.setText(recipe.getName());
+
+        // set to image resource if exists, otherwise default to the cupcake logo
+        String imageUrl = recipe.getImagePath();
+        if (imageUrl != null && imageUrl.length() > 0) {
+            Picasso.with(mContext).load(imageUrl).into(viewHolder.recipeImageView);
+        } else {
+            viewHolder.recipeImageView.setImageResource(R.drawable.birthday);
+        }
+
         String servingsText = "Serves: " + String.valueOf(mRecipes.get(position).getServings());
         viewHolder.servingsTextView.setText(servingsText);
     }

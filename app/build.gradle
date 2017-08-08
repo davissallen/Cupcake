@@ -29,17 +29,21 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.0'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.0'
 
-    // for Butterknife
+    // for Butterknife view binding
     compile 'com.jakewharton:butterknife:8.4.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 
-    // for ExoPlayer
+    // for ExoPlayer media playback
     compile 'com.google.android.exoplayer:exoplayer:r2.2.0'
 
+    // for Espresso tests
     androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.android.support', module: 'support-v4'
         exclude group: 'com.android.support', module: 'design'
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
+
+    // for Picasso image downloading
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }

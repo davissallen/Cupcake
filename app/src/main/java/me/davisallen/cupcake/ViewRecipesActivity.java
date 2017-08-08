@@ -106,7 +106,7 @@ public class ViewRecipesActivity extends AppCompatActivity implements
         }
 
         // get adapter reference
-        mAdapter = new ViewRecipesRecyclerViewAdapter(this, mRecipes);
+        mAdapter = new ViewRecipesRecyclerViewAdapter(this, mRecipes, this);
 
         // set adapter onto RecyclerView
         mRecipeRecyclerView.setAdapter(mAdapter);
