@@ -73,35 +73,37 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         // bind views with butterknife library
         ButterKnife.bind(this);
 
-        // is it a tablet layout?
-        mIsTablet = getResources().getBoolean(R.bool.isTablet);
-
-        // open the step list fragment
-        openFragment(FragmentType.RECIPE_STEP_LIST, 0, TransitionAnimation.ENTER_FROM_RIGHT);
-
-        // open the ingredients layout if it is a tablet
-        if (mIsTablet) {
-            openFragment(FragmentType.INGREDIENT_LIST, 0, TransitionAnimation.ENTER_FROM_RIGHT);
-        }
-
-        // continue showing video if it just got rotated into landscape
-        if (mFragmentManager == null) {
-            mFragmentManager = getSupportFragmentManager();
-        }
-
-        // get current step position from fragment manager
+        // get retained fragment if it exists
         getRetainedFragment();
-        if (mRetainedFragment != null) {
-            mCurrentPosition = mRetainedFragment.getCurrentPosition();
-            if (getResources().getBoolean(R.bool.isLandscape)) {
+
+        mIsTablet = getResources().getBoolean(R.bool.isTablet);
+        if (mIsTablet) {
+            openFragment(FragmentType.RECIPE_STEP_LIST, 0, TransitionAnimation.ENTER_FROM_RIGHT);
+            if (mRetainedFragment != null) {
+                openFragment(FragmentType.RECIPE_DETAIL, mCurrentPosition, TransitionAnimation.ENTER_FROM_RIGHT);
+            } else {
+                openFragment(FragmentType.INGREDIENT_LIST, 0, TransitionAnimation.ENTER_FROM_RIGHT);
+            }
+        } else {
+            // open the step list fragment if no retained fragment
+            if (mRetainedFragment != null) {
                 openFragment(FragmentType.RECIPE_DETAIL, mCurrentPosition, TransitionAnimation.ENTER_FROM_RIGHT);
                 showDetailsFragment();
+            } else {
+                openFragment(FragmentType.RECIPE_STEP_LIST, 0, TransitionAnimation.ENTER_FROM_RIGHT);
+                hideDetailsFragment();
             }
         }
     }
 
     private void getRetainedFragment() {
+        if (mFragmentManager == null) {
+            mFragmentManager = getSupportFragmentManager();
+        }
         mRetainedFragment = (StepDetailFragment) mFragmentManager.findFragmentByTag(TAG_RETAINED_FRAGMENT);
+        if (mRetainedFragment != null) {
+            mCurrentPosition = mRetainedFragment.getCurrentPosition();
+        }
     }
 
     @Override
@@ -139,7 +141,17 @@ public class RecipeDetailActivity extends AppCompatActivity implements
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        handleBackNavigation();
+        return false;
+    }
+
+    @Override
     public void onBackPressed() {
+        handleBackNavigation();
+    }
+
+    private void handleBackNavigation() {
         if (!mIsTablet && mFragmentContainerDetails.getVisibility() == View.VISIBLE) {
             hideDetailsFragment();
             getRetainedFragment();

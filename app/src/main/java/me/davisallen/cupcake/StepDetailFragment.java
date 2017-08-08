@@ -118,7 +118,7 @@ public class StepDetailFragment extends Fragment {
             initializeMediaSource(videoUri);    // initialize MediaSource
             startVideo();                       // start playing video
 
-            if (mContext.getResources().getBoolean(R.bool.isLandscape)) {
+            if (mContext.getResources().getBoolean(R.bool.isLandscape) && !mContext.getResources().getBoolean(R.bool.isTablet)) {
                 showLandscapeView();
             } else {
                 showPortraitView();
