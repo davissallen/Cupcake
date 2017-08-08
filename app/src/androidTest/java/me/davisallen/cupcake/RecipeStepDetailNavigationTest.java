@@ -12,6 +12,7 @@ import android.view.ViewParent;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,13 +31,13 @@ import static org.hamcrest.Matchers.is;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class RecipeStepDetailNextNavigationTest {
+public class RecipeStepDetailNavigationTest {
 
     @Rule
     public ActivityTestRule<ViewRecipesActivity> mActivityTestRule = new ActivityTestRule<>(ViewRecipesActivity.class);
 
     @Test
-    public void recipeStepDetailNextNavigationTest() {
+    public void recipeStepDetailNavigationTest() {
         ViewInteraction recyclerView = onView(
                 allOf(withId(R.id.recipe_recycler_view),
                         childAtPosition(
@@ -82,21 +83,52 @@ public class RecipeStepDetailNextNavigationTest {
         // The recommended way to handle such scenarios is to use Espresso idling resources:
         // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
         try {
-            Thread.sleep(1043);
+            Thread.sleep(213);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        ViewInteraction textView = onView(
-                allOf(withId(R.id.short_description_text_view), withText("Starting prep"), withContentDescription("step title"),
+        ViewInteraction viewGroup = onView(
+                allOf(withId(R.id.fragment_step_detail),
+                        childAtPosition(
+                                allOf(withId(R.id.fragment_container_details),
+                                        childAtPosition(
+                                                IsInstanceOf.<View>instanceOf(android.widget.FrameLayout.class),
+                                                0)),
+                                0),
+                        isDisplayed()));
+        viewGroup.check(matches(isDisplayed()));
+
+        ViewInteraction appCompatButton2 = onView(
+                allOf(withId(R.id.button_previous), withText("Previous"), withContentDescription("previous button"),
                         childAtPosition(
                                 allOf(withId(R.id.fragment_step_detail),
                                         childAtPosition(
                                                 withId(R.id.fragment_container_details),
                                                 0)),
+                                4),
+                        isDisplayed()));
+        appCompatButton2.perform(click());
+
+        // Added a sleep statement to match the app's execution delay.
+        // The recommended way to handle such scenarios is to use Espresso idling resources:
+        // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ViewInteraction viewGroup2 = onView(
+                allOf(withId(R.id.fragment_step_detail),
+                        childAtPosition(
+                                allOf(withId(R.id.fragment_container_details),
+                                        childAtPosition(
+                                                IsInstanceOf.<View>instanceOf(android.widget.FrameLayout.class),
+                                                0)),
                                 0),
                         isDisplayed()));
-        textView.check(matches(isDisplayed()));
+        viewGroup2.check(matches(isDisplayed()));
 
     }
 
