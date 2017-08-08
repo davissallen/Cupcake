@@ -3,7 +3,6 @@ package me.davisallen.cupcake;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -59,20 +58,12 @@ public class IngredientsViewsFactory implements RemoteViewsService.RemoteViewsFa
 
     @Override
     public RemoteViews getViewAt(int i) {
-        Log.d(LOG_TAG, "view position: " + i);
-
         RemoteViews row=new RemoteViews(
                 mContext.getPackageName(),
                 R.layout.row
         );
 
         row.setTextViewText(R.id.widget_list_item_text_view, mIngredients.get(i).toString());
-
-        // Intent to open detail activity with extra bundle
-//        Intent intent=new Intent();
-//        Bundle extras=new Bundle();
-//        intent.putExtras(extras);
-//        row.setOnClickFillInIntent(R.id.widget_list_item_text_view, intent);
 
         return(row);
     }

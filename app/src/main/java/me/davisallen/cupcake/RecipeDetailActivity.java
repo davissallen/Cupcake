@@ -37,6 +37,10 @@ public class RecipeDetailActivity extends AppCompatActivity implements
     private FragmentManager mFragmentManager;
     private boolean mIsTablet;
 
+    private static final String TAG_RETAINED_FRAGMENT = "StepDetailFragment";
+    private StepDetailFragment mRetainedFragment;
+    private int mCurrentPosition;
+
     @BindView(R.id.fragment_container_step_list) FrameLayout mFragmentContainerStepList;
     @BindView(R.id.fragment_container_details) FrameLayout mFragmentContainerDetails;
     @Nullable @BindView(R.id.tablet_detail_fragment_container) LinearLayout mTabletLinearLayout;
@@ -79,6 +83,25 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         if (mIsTablet) {
             openFragment(FragmentType.INGREDIENT_LIST, 0, TransitionAnimation.ENTER_FROM_RIGHT);
         }
+
+        // continue showing video if it just got rotated into landscape
+        if (mFragmentManager == null) {
+            mFragmentManager = getSupportFragmentManager();
+        }
+
+        // get current step position from fragment manager
+        getRetainedFragment();
+        if (mRetainedFragment != null) {
+            mCurrentPosition = mRetainedFragment.getCurrentPosition();
+            if (getResources().getBoolean(R.bool.isLandscape)) {
+                openFragment(FragmentType.RECIPE_DETAIL, mCurrentPosition, TransitionAnimation.ENTER_FROM_RIGHT);
+                showDetailsFragment();
+            }
+        }
+    }
+
+    private void getRetainedFragment() {
+        mRetainedFragment = (StepDetailFragment) mFragmentManager.findFragmentByTag(TAG_RETAINED_FRAGMENT);
     }
 
     @Override
@@ -89,6 +112,7 @@ public class RecipeDetailActivity extends AppCompatActivity implements
                 openFragment(FragmentType.INGREDIENT_LIST, clickedItemIndex, TransitionAnimation.ENTER_FROM_TOP);
             } else {
                 openFragment(FragmentType.INGREDIENT_LIST, clickedItemIndex, TransitionAnimation.ENTER_FROM_RIGHT);
+                showDetailsFragment();
             }
         } else {
             // open up detail fragment
@@ -96,6 +120,8 @@ public class RecipeDetailActivity extends AppCompatActivity implements
                 openFragment(FragmentType.RECIPE_DETAIL, clickedItemIndex-1, TransitionAnimation.ENTER_FROM_BOTTOM);
             } else {
                 openFragment(FragmentType.RECIPE_DETAIL, clickedItemIndex-1, TransitionAnimation.ENTER_FROM_RIGHT);
+                getRetainedFragment();
+                showDetailsFragment();
             }
         }
     }
@@ -114,8 +140,12 @@ public class RecipeDetailActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        if (!mIsTablet && mFragmentContainerStepList.getVisibility() != View.VISIBLE) {
+        if (!mIsTablet && mFragmentContainerDetails.getVisibility() == View.VISIBLE) {
             hideDetailsFragment();
+            getRetainedFragment();
+            if (mRetainedFragment != null) {
+                mRetainedFragment.stopPlayer();
+            }
         } else {
             super.onBackPressed();
         }
@@ -157,15 +187,14 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         if (type == FragmentType.RECIPE_STEP_LIST) {
             transaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
             transaction.replace(R.id.fragment_container_step_list, StepListFragment.newInstance(mSteps, mIngredients));
-
-            if (!mIsTablet) { hideDetailsFragment(); }
+            transaction.commit();
         } else if (type == FragmentType.INGREDIENT_LIST) {
             transaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
             transaction.replace(
                     R.id.fragment_container_details,
                     IngredientsFragment.newInstance(mIngredients)
             );
-            if (!mIsTablet) { showDetailsFragment(); }
+            transaction.commit();
         } else if (type == FragmentType.RECIPE_DETAIL) {
             Step stepSelected = mSteps.get(position);
             switch (anim) {
@@ -184,12 +213,12 @@ public class RecipeDetailActivity extends AppCompatActivity implements
             }
             transaction.replace(
                     R.id.fragment_container_details,
-                    StepDetailFragment.newInstance(stepSelected, this, position, mSteps.size())
+                    StepDetailFragment.newInstance(stepSelected, this, position, mSteps.size()),
+                    TAG_RETAINED_FRAGMENT
             );
-            if (!mIsTablet) { showDetailsFragment(); }
+            transaction.commit();
+            getRetainedFragment();
         }
-
-        transaction.commit();
     }
 
     private enum FragmentType {

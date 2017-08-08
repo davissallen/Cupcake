@@ -90,7 +90,11 @@ public class StepDetailFragment extends Fragment {
             mStep = getArguments().getParcelable(STEP_PARAM);
         }
         mContext = getContext();
-        Log.d(LOG_TAG, "on create (step detail)...");
+        setRetainInstance(true);
+    }
+
+    public int getCurrentPosition() {
+        return mCurrentPosition;
     }
 
     @Override
@@ -161,6 +165,10 @@ public class StepDetailFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        stopPlayer();
+    }
+
+    public void stopPlayer() {
         if (mPlayer != null) {
             mPlayer.stop();
         }
