@@ -107,11 +107,19 @@ public class StepDetailFragment extends Fragment {
         // We have to look at videoURL and thumbnailURL because the JSON entries are nonuniform
         // and some have only a videoURL and others have only a thumbnailURL (exclusive) which both
         // URLs point to videos.
+
         Uri videoUri = mStep.getVideoOrThumbnailUri();
         if (videoUri != null) {
             initializePlayer();                 // initialize SimpleExoPlayer
             initializeMediaSource(videoUri);    // initialize MediaSource
             startVideo();                       // start playing video
+
+            if (mContext.getResources().getBoolean(R.bool.isLandscape)) {
+                showLandscapeView();
+            } else {
+                showPortraitView();
+            }
+
         } else {
             mPlayerView.setVisibility(View.INVISIBLE);
         }
@@ -153,7 +161,6 @@ public class StepDetailFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(LOG_TAG, "onPause stopping...");
         if (mPlayer != null) {
             mPlayer.stop();
         }
@@ -187,8 +194,6 @@ public class StepDetailFragment extends Fragment {
         unbinder.unbind();
     }
 
-
-
     private void initializePlayer() {
         if (mPlayer == null) {
             LoadControl loadControl = new DefaultLoadControl();
@@ -220,6 +225,20 @@ public class StepDetailFragment extends Fragment {
         mPlayerView.setPlayer(mPlayer);
         mPlayer.prepare(mVideoSource);
         mPlayer.setPlayWhenReady(true);
+    }
+
+    private void showLandscapeView() {
+        mButtonPrevious.setVisibility(View.GONE);
+        mButtonNext.setVisibility(View.GONE);
+        mShortDescriptionTextView.setVisibility(View.GONE);
+        mDescriptionTextView.setVisibility(View.GONE);
+    }
+
+    private void showPortraitView() {
+        mButtonPrevious.setVisibility(View.VISIBLE);
+        mButtonNext.setVisibility(View.VISIBLE);
+        mShortDescriptionTextView.setVisibility(View.VISIBLE);
+        mDescriptionTextView.setVisibility(View.VISIBLE);
     }
 
 }

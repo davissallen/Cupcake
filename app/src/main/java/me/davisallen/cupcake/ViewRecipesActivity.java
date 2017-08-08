@@ -6,6 +6,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -34,6 +35,7 @@ public class ViewRecipesActivity extends AppCompatActivity implements
     private LoaderManager mLoaderManager;
     private ViewRecipesRecyclerViewAdapter mAdapter;
     private ActionBar mActionBar;
+    private boolean mIsTablet;
 
     // get reference to recyclerview and splash screen
     @BindView(R.id.recipe_recycler_view) RecyclerView mRecipeRecyclerView;
@@ -59,8 +61,16 @@ public class ViewRecipesActivity extends AppCompatActivity implements
 
         mLoaderManager.initLoader(LOADER_ID, null, this);
 
+        mIsTablet = getResources().getBoolean(R.bool.isTablet);
+
+        RecyclerView.LayoutManager layoutManager;
+        if (mIsTablet) {
+            layoutManager = new GridLayoutManager(this, 2);
+        } else {
+            layoutManager = new LinearLayoutManager(this);
+        }
+
         // assign layout manager to recycler view
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecipeRecyclerView.setLayoutManager(layoutManager);
 
         // set fixed size for efficiency

@@ -9,22 +9,22 @@
     </style>
 
     <style name="RecipeListItem" parent="AppTheme" >
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">36sp</item>
         <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
 
     <style name="ListItem" parent="AppTheme" >
-        <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/colorPrimaryText</item>
-    </style>
-
-    <style name="StepTitle" parent="AppTheme" >
         <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
 
+    <style name="StepTitle" parent="AppTheme" >
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">@color/colorPrimaryText</item>
+    </style>
+
     <style name="StepDescription" parent="AppTheme" >
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
 </resources>

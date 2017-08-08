@@ -28,4 +28,6 @@
 
     </FrameLayout>
 
+    <!-- TODO: Make nice loading screen with progress loader -->
+
 </FrameLayout>

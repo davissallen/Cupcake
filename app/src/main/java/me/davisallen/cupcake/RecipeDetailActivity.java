@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -11,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
@@ -33,9 +35,11 @@ public class RecipeDetailActivity extends AppCompatActivity implements
     private ArrayList<Step> mSteps;
     private ArrayList<Ingredient> mIngredients;
     private FragmentManager mFragmentManager;
+    private boolean mIsTablet;
 
     @BindView(R.id.fragment_container_step_list) FrameLayout mFragmentContainerStepList;
     @BindView(R.id.fragment_container_details) FrameLayout mFragmentContainerDetails;
+    @Nullable @BindView(R.id.tablet_detail_fragment_container) LinearLayout mTabletLinearLayout;
 
     public static Bundle currentlySelectedRecipe;
 
@@ -65,22 +69,34 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         // bind views with butterknife library
         ButterKnife.bind(this);
 
+        // is it a tablet layout?
+        mIsTablet = getResources().getBoolean(R.bool.isTablet);
+
         // open the step list fragment
         openFragment(FragmentType.RECIPE_STEP_LIST, 0, TransitionAnimation.ENTER_FROM_RIGHT);
+
+        // open the ingredients layout if it is a tablet
+        if (mIsTablet) {
+            openFragment(FragmentType.INGREDIENT_LIST, 0, TransitionAnimation.ENTER_FROM_RIGHT);
+        }
     }
 
     @Override
     public void onListItemClick(int clickedItemIndex) {
-        if (mFragmentManager == null) {
-            mFragmentManager = getSupportFragmentManager();
-        }
-
         if (clickedItemIndex == 0) {
             // open up ingredient fragment
-            openFragment(FragmentType.INGREDIENT_LIST, clickedItemIndex, TransitionAnimation.ENTER_FROM_RIGHT);
+            if (mIsTablet) {
+                openFragment(FragmentType.INGREDIENT_LIST, clickedItemIndex, TransitionAnimation.ENTER_FROM_TOP);
+            } else {
+                openFragment(FragmentType.INGREDIENT_LIST, clickedItemIndex, TransitionAnimation.ENTER_FROM_RIGHT);
+            }
         } else {
             // open up detail fragment
-            openFragment(FragmentType.RECIPE_DETAIL, clickedItemIndex-1, TransitionAnimation.ENTER_FROM_RIGHT);
+            if (mIsTablet) {
+                openFragment(FragmentType.RECIPE_DETAIL, clickedItemIndex-1, TransitionAnimation.ENTER_FROM_BOTTOM);
+            } else {
+                openFragment(FragmentType.RECIPE_DETAIL, clickedItemIndex-1, TransitionAnimation.ENTER_FROM_RIGHT);
+            }
         }
     }
 
@@ -93,15 +109,15 @@ public class RecipeDetailActivity extends AppCompatActivity implements
             // open up detail fragment
             openFragment(FragmentType.RECIPE_DETAIL, position-1, TransitionAnimation.ENTER_FROM_TOP);
         }
-        showDetailsFragment();
+        if (!mIsTablet) { showDetailsFragment(); }
     }
 
     @Override
     public void onBackPressed() {
-        if (mFragmentContainerStepList.getVisibility() == View.VISIBLE) {
-            super.onBackPressed();
-        } else {
+        if (!mIsTablet && mFragmentContainerStepList.getVisibility() != View.VISIBLE) {
             hideDetailsFragment();
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -141,14 +157,15 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         if (type == FragmentType.RECIPE_STEP_LIST) {
             transaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
             transaction.replace(R.id.fragment_container_step_list, StepListFragment.newInstance(mSteps, mIngredients));
-            hideDetailsFragment();
+
+            if (!mIsTablet) { hideDetailsFragment(); }
         } else if (type == FragmentType.INGREDIENT_LIST) {
             transaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
             transaction.replace(
                     R.id.fragment_container_details,
                     IngredientsFragment.newInstance(mIngredients)
             );
-            showDetailsFragment();
+            if (!mIsTablet) { showDetailsFragment(); }
         } else if (type == FragmentType.RECIPE_DETAIL) {
             Step stepSelected = mSteps.get(position);
             switch (anim) {
@@ -169,7 +186,7 @@ public class RecipeDetailActivity extends AppCompatActivity implements
                     R.id.fragment_container_details,
                     StepDetailFragment.newInstance(stepSelected, this, position, mSteps.size())
             );
-            showDetailsFragment();
+            if (!mIsTablet) { showDetailsFragment(); }
         }
 
         transaction.commit();
