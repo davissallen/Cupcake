@@ -2,6 +2,7 @@ package me.davisallen.cupcake;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +24,8 @@ import me.davisallen.cupcake.pojo.Step;
 public class StepListFragment extends Fragment {
     private static final String PARAM_STEPS = "steps";
     private static final String PARAM_INGREDIENTS = "ingredients";
+    public static final String BUNDLE_RECYCLER_LAYOUT = "StepListFragment.recycler.layout";
+    private static final String LOG_TAG = StepListFragment.class.getSimpleName();
 
     private ArrayList<Step> mSteps;
     private ArrayList<Ingredient> mIngredients;
@@ -32,6 +35,8 @@ public class StepListFragment extends Fragment {
 
     private StepListClickListener mListener;
     private StepListRecyclerViewAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
+    private int mCurrentPosition;
 
     public StepListFragment() {
         // Required empty public constructor
@@ -69,8 +74,10 @@ public class StepListFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         // assign layout manager to recycler view
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        mStepsRecyclerView.setLayoutManager(layoutManager);
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mLayoutManager.scrollToPosition(mCurrentPosition);
+        mStepsRecyclerView.setLayoutManager(mLayoutManager);
+
         // set fixed size for efficiency
         mStepsRecyclerView.setHasFixedSize(true);
 
@@ -79,6 +86,21 @@ public class StepListFragment extends Fragment {
         mAdapter = new StepListRecyclerViewAdapter(getContext(), listener, mIngredients, mSteps);
         // set adapter onto RecyclerView
         mStepsRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState != null) {
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            mStepsRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, mStepsRecyclerView.getLayoutManager().onSaveInstanceState());
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -94,6 +95,21 @@ public class RecipeDetailActivity extends AppCompatActivity implements
                 hideDetailsFragment();
             }
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     private void getRetainedFragment() {
@@ -194,6 +210,20 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         if (mFragmentManager == null) {
             mFragmentManager = getSupportFragmentManager();
         }
+
+        // Check to see if fragment already exists, if so, don't recreate it!
+        int id = -1;
+        if (type == FragmentType.RECIPE_STEP_LIST) {
+            id = R.id.fragment_container_step_list;
+        }
+        else {
+            id = R.id.fragment_container_details;
+        }
+        Fragment checkFragment = mFragmentManager.findFragmentById(id);
+        if (checkFragment != null) {
+            return;
+        }
+
         FragmentTransaction transaction = mFragmentManager.beginTransaction();
 
         if (type == FragmentType.RECIPE_STEP_LIST) {

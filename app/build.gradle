@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.0"
+    buildToolsVersion "26.0.1"
     defaultConfig {
         applicationId "me.davisallen.cupcake"
         minSdkVersion 16
@@ -19,11 +19,16 @@ android {
     }
 }
 
+
+ext {
+    supportLibVersion = '26.0.0'
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:26.0.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:recyclerview-v7:26.0.0'
+    compile "com.android.support:recyclerview-v7:${supportLibVersion}"
     compile 'com.android.support:support-v4:26.0.0'
     compile 'junit:junit:4.12'
     compile 'com.android.support.test:runner:0.5'
