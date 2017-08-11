@@ -171,7 +171,9 @@ public class StepDetailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mPlayer.setPlayWhenReady(true);
+        if (mPlayer != null) {
+            mPlayer.setPlayWhenReady(true);
+        }
     }
 
     public void stopPlayer() {
@@ -196,6 +198,7 @@ public class StepDetailFragment extends Fragment {
         super.onDetach();
         mListener = null;
         if (mPlayer != null) {
+            mPlayer.stop();
             mPlayer.release();
             Log.d(LOG_TAG, "releasing mPlayer");
             mPlayer = null;

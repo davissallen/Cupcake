@@ -211,17 +211,12 @@ public class RecipeDetailActivity extends AppCompatActivity implements
             mFragmentManager = getSupportFragmentManager();
         }
 
-        // Check to see if fragment already exists, if so, don't recreate it!
+        // Check to see if step_list fragment already exists, if so, don't recreate it!
         int id = -1;
         if (type == FragmentType.RECIPE_STEP_LIST) {
             id = R.id.fragment_container_step_list;
-        }
-        else {
-            id = R.id.fragment_container_details;
-        }
-        Fragment checkFragment = mFragmentManager.findFragmentById(id);
-        if (checkFragment != null) {
-            return;
+            Fragment checkFragment = mFragmentManager.findFragmentById(id);
+            if (checkFragment != null) { return; }
         }
 
         FragmentTransaction transaction = mFragmentManager.beginTransaction();
