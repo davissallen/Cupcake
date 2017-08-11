@@ -168,9 +168,15 @@ public class StepDetailFragment extends Fragment {
         stopPlayer();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPlayer.setPlayWhenReady(true);
+    }
+
     public void stopPlayer() {
         if (mPlayer != null) {
-            mPlayer.stop();
+            mPlayer.setPlayWhenReady(false);
         }
     }
 
