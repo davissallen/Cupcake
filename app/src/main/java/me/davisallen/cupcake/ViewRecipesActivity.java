@@ -25,7 +25,6 @@ import me.davisallen.cupcake.utils.ToastUtils;
 import static me.davisallen.cupcake.utils.JsonUtils.RECIPE_INGREDIENTS;
 import static me.davisallen.cupcake.utils.JsonUtils.RECIPE_NAME;
 import static me.davisallen.cupcake.utils.JsonUtils.RECIPE_STEPS;
-import static me.davisallen.cupcake.utils.ToastUtils.makeCustomToast;
 
 public class ViewRecipesActivity extends AppCompatActivity implements
         ViewRecipesRecyclerViewAdapter.ListItemClickListener,
@@ -100,7 +99,7 @@ public class ViewRecipesActivity extends AppCompatActivity implements
     public void onListItemClick(int clickedItemIndex) {
         Recipe clickedRecipe = mRecipes.get(clickedItemIndex);
 
-        makeCustomToast(this, "Tonight, I'm makin " + clickedRecipe.getName());
+        ToastUtils.makeCustomToast(this, "Tonight, I'm makin " + clickedRecipe.getName());
 
         Bundle recipeDetail = new Bundle();
         recipeDetail.putString(RECIPE_NAME, clickedRecipe.getName());

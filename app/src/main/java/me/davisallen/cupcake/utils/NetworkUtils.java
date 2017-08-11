@@ -40,6 +40,7 @@ public class NetworkUtils {
         /*
          *  Make URL connection
          */
+        // TODO: Implement volley?
         HttpURLConnection urlConnection = null;
         try {
             urlConnection = (HttpURLConnection) recipeUrl.openConnection();
