@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +35,7 @@ import me.davisallen.cupcake.pojo.Step;
 public class StepDetailFragment extends Fragment {
 
     private static final String LOG_TAG = StepDetailFragment.class.getSimpleName();
+    private static final String PAUSED_POSITION = "paused_position";
     @BindView(R.id.player_view) SimpleExoPlayerView mPlayerView;
     @BindView(R.id.short_description_text_view) TextView mShortDescriptionTextView;
     @BindView(R.id.description_text_view) TextView mDescriptionTextView;
@@ -45,13 +45,15 @@ public class StepDetailFragment extends Fragment {
 
     private static final String STEP_PARAM = "step";
 
-    private Step mStep;
+    public Step mStep;
     private NavButtonListener mListener;
     private Context mContext;
     private int mCurrentPosition;
     private int mNumberOfSteps;
+    private Uri mVideoUri;
+    private long mSeekTime;
 
-    private SimpleExoPlayer mPlayer;
+    public SimpleExoPlayer mPlayer;
     private MediaSource mVideoSource;
 
     public interface NavButtonListener {
@@ -88,9 +90,13 @@ public class StepDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mStep = getArguments().getParcelable(STEP_PARAM);
+            mVideoUri = mStep.getVideoOrThumbnailUri();
         }
+        mSeekTime = 0;
         mContext = getContext();
         setRetainInstance(true);
+
+        initializePlayer();
     }
 
     public int getCurrentPosition() {
@@ -111,21 +117,19 @@ public class StepDetailFragment extends Fragment {
         // We have to look at videoURL and thumbnailURL because the JSON entries are nonuniform
         // and some have only a videoURL and others have only a thumbnailURL (exclusive) which both
         // URLs point to videos.
-
-        Uri videoUri = mStep.getVideoOrThumbnailUri();
-        if (videoUri != null) {
-            initializePlayer();                 // initialize SimpleExoPlayer
-            initializeMediaSource(videoUri);    // initialize MediaSource
-            startVideo();                       // start playing video
-
-            if (mContext.getResources().getBoolean(R.bool.isLandscape) && !mContext.getResources().getBoolean(R.bool.isTablet)) {
-                showLandscapeView();
+        if (mVideoUri != null) {
+            mPlayerView.setPlayer(mPlayer);
+            if (mContext.getResources().getBoolean(R.bool.isLandscape)) {
+                if (!mContext.getResources().getBoolean(R.bool.isTablet)) {
+                    showLandscapeView();
+                }
             } else {
                 showPortraitView();
             }
 
         } else {
-            mPlayerView.setVisibility(View.INVISIBLE);
+            showPortraitView();
+            mPlayerView.setVisibility(View.GONE);
         }
 
         mShortDescriptionTextView.setText(mStep.getShortDescription());
@@ -158,27 +162,29 @@ public class StepDetailFragment extends Fragment {
     }
 
     @Override
-    public boolean getAllowEnterTransitionOverlap() {
-        return super.getAllowEnterTransitionOverlap();
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putLong(PAUSED_POSITION, mSeekTime);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            mSeekTime = savedInstanceState.getLong(PAUSED_POSITION);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        stopPlayer();
+        releasePlayer();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (mPlayer != null) {
-            mPlayer.setPlayWhenReady(true);
-        }
-    }
-
-    public void stopPlayer() {
-        if (mPlayer != null) {
-            mPlayer.setPlayWhenReady(false);
+        if (mVideoUri != null) {
+            initializePlayer();
         }
     }
 
@@ -197,12 +203,6 @@ public class StepDetailFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        if (mPlayer != null) {
-            mPlayer.stop();
-            mPlayer.release();
-            Log.d(LOG_TAG, "releasing mPlayer");
-            mPlayer = null;
-        }
     }
 
     @Override
@@ -211,47 +211,62 @@ public class StepDetailFragment extends Fragment {
         unbinder.unbind();
     }
 
-    private void initializePlayer() {
-        if (mPlayer == null) {
+    public void initializePlayer() {
+        if (mPlayer == null && mVideoUri != null) {
             LoadControl loadControl = new DefaultLoadControl();
             TrackSelector trackSelector = new DefaultTrackSelector();
             mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector, loadControl);
+
+            // dataSourceFactory (produces DataSource instances through which media data is loaded)
+            String userAgent = Util.getUserAgent(mContext, getString(R.string.app_name));
+            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext, userAgent);
+
+            // extractorFactory
+            ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+
+            // create the MediaSource object
+            mVideoSource = new ExtractorMediaSource(
+                    mVideoUri,
+                    dataSourceFactory,
+                    extractorsFactory,
+                    null,
+                    null
+            );
+
+            mPlayer.prepare(mVideoSource);
+            mPlayer.seekTo(mSeekTime);
+        }
+
+        if (mPlayer != null) {
+            mPlayer.setPlayWhenReady(true);
         }
     }
 
-    private void initializeMediaSource(Uri videoUri) {
-
-        // dataSourceFactory (produces DataSource instances through which media data is loaded)
-        String userAgent = Util.getUserAgent(mContext, getString(R.string.app_name));
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext, userAgent);
-
-        // extractorFactory
-        ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-
-        // create the MediaSource object
-        mVideoSource = new ExtractorMediaSource(
-                videoUri,
-                dataSourceFactory,
-                extractorsFactory,
-                null,
-                null
-        );
+    public void setPlayerView() {
+        if (mPlayerView != null) {
+            mPlayerView.setPlayer(mPlayer);
+        }
     }
 
-    private void startVideo() {
-        mPlayerView.setPlayer(mPlayer);
-        mPlayer.prepare(mVideoSource);
-        mPlayer.setPlayWhenReady(true);
+    public void releasePlayer() {
+        if (mPlayer != null) {
+            mPlayer.stop();
+            mSeekTime = mPlayer.getCurrentPosition();
+            mPlayer.release();
+            mPlayer = null;
+        }
     }
 
     private void showLandscapeView() {
+        mPlayerView.setVisibility(View.VISIBLE);
         mButtonPrevious.setVisibility(View.GONE);
         mButtonNext.setVisibility(View.GONE);
         mShortDescriptionTextView.setVisibility(View.GONE);
         mDescriptionTextView.setVisibility(View.GONE);
     }
 
-    private void showPortraitView() {
+    private void showPortraitView()  {
+        mPlayerView.setVisibility(View.VISIBLE);
         mButtonPrevious.setVisibility(View.VISIBLE);
         mButtonNext.setVisibility(View.VISIBLE);
         mShortDescriptionTextView.setVisibility(View.VISIBLE);

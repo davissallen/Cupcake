@@ -137,8 +137,8 @@ public class RecipeDetailActivity extends AppCompatActivity implements
             if (mIsTablet) {
                 openFragment(FragmentType.RECIPE_DETAIL, clickedItemIndex-1, TransitionAnimation.ENTER_FROM_BOTTOM);
             } else {
-                openFragment(FragmentType.RECIPE_DETAIL, clickedItemIndex-1, TransitionAnimation.ENTER_FROM_RIGHT);
                 getRetainedFragment();
+                openFragment(FragmentType.RECIPE_DETAIL, clickedItemIndex-1, TransitionAnimation.ENTER_FROM_RIGHT);
                 showDetailsFragment();
             }
         }
@@ -171,9 +171,14 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         if (!mIsTablet && mFragmentContainerDetails.getVisibility() == View.VISIBLE) {
             hideDetailsFragment();
             getRetainedFragment();
-            if (mRetainedFragment != null) {
-                mRetainedFragment.stopPlayer();
+
+            // release player asset
+            Fragment detailFragment = mFragmentManager.findFragmentById(R.id.fragment_container_details);
+            if (detailFragment instanceof StepDetailFragment) {
+                StepDetailFragment stepDetailFragment = (StepDetailFragment) detailFragment;
+                stepDetailFragment.releasePlayer();
             }
+
         } else {
             super.onBackPressed();
         }
@@ -211,17 +216,16 @@ public class RecipeDetailActivity extends AppCompatActivity implements
             mFragmentManager = getSupportFragmentManager();
         }
 
-        // Check to see if step_list fragment already exists, if so, don't recreate it!
-        int id = -1;
-        if (type == FragmentType.RECIPE_STEP_LIST) {
-            id = R.id.fragment_container_step_list;
-            Fragment checkFragment = mFragmentManager.findFragmentById(id);
-            if (checkFragment != null) { return; }
-        }
-
         FragmentTransaction transaction = mFragmentManager.beginTransaction();
 
+        int currentFragmentId = -1;
         if (type == FragmentType.RECIPE_STEP_LIST) {
+            // Check to see if step_list fragment already exists, if so, don't recreate it!
+            // This allows the app to remember its current position in the list (on rotation)
+            currentFragmentId = R.id.fragment_container_step_list;
+            Fragment stepListFragment = mFragmentManager.findFragmentById(currentFragmentId);
+            if (stepListFragment != null) { return; }
+
             transaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
             transaction.replace(R.id.fragment_container_step_list, StepListFragment.newInstance(mSteps, mIngredients));
             transaction.commit();
@@ -234,6 +238,18 @@ public class RecipeDetailActivity extends AppCompatActivity implements
             transaction.commit();
         } else if (type == FragmentType.RECIPE_DETAIL) {
             Step stepSelected = mSteps.get(position);
+
+            // Check to see if recipe_detail fragment already exists, if so, don't recreate it!
+            // This allows the app to remember its current mPlayer position
+            StepDetailFragment stepDetailFragment = (StepDetailFragment) mFragmentManager.findFragmentByTag(TAG_RETAINED_FRAGMENT);
+            if (stepDetailFragment != null) {
+                if (stepSelected.getId() == stepDetailFragment.mStep.getId()) {
+                    stepDetailFragment.initializePlayer();
+                    stepDetailFragment.setPlayerView();
+                    return;
+                }
+            }
+
             switch (anim) {
                 case ENTER_FROM_BOTTOM:
                     transaction.setCustomAnimations(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top);
