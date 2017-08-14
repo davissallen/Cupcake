@@ -12,7 +12,6 @@ import android.view.ViewParent;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,40 +22,29 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
-import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.is;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class RecipeDetailStepBackToListTest {
+public class RecipeDetailBackNavToStepListExists {
 
     @Rule
     public ActivityTestRule<ViewRecipesActivity> mActivityTestRule = new ActivityTestRule<>(ViewRecipesActivity.class);
 
     @Test
-    public void recipeDetailStepBackToListTest() {
+    public void recipeDetailBackNavToStepListExists() {
         ViewInteraction recyclerView = onView(
                 allOf(withId(R.id.recipe_recycler_view),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(android.R.id.content),
-                                        0),
-                                0),
+                        withParent(allOf(withId(R.id.view_recipes_frame_layout),
+                                withParent(withId(android.R.id.content)))),
                         isDisplayed()));
         recyclerView.perform(actionOnItemAtPosition(0, click()));
 
         ViewInteraction recyclerView2 = onView(
                 allOf(withId(R.id.recipe_steps_list_recycler_view),
-                        childAtPosition(
-                                allOf(withId(R.id.fragment_container_step_list),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
-                                                0)),
-                                0),
+                        withParent(withId(R.id.fragment_container_step_list)),
                         isDisplayed()));
         recyclerView2.perform(actionOnItemAtPosition(1, click()));
 
@@ -69,38 +57,17 @@ public class RecipeDetailStepBackToListTest {
             e.printStackTrace();
         }
 
-        ViewInteraction appCompatButton = onView(
-                allOf(withId(R.id.button_next), withText("Next"), withContentDescription("next button"),
-                        childAtPosition(
-                                allOf(withId(R.id.fragment_step_detail),
-                                        childAtPosition(
-                                                withId(R.id.fragment_container_details),
-                                                0)),
-                                5),
-                        isDisplayed()));
-        appCompatButton.perform(click());
-
-        // Added a sleep statement to match the app's execution delay.
-        // The recommended way to handle such scenarios is to use Espresso idling resources:
-        // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
-        try {
-            Thread.sleep(258);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         pressBack();
 
-        ViewInteraction recyclerView3 = onView(
-                allOf(withId(R.id.recipe_steps_list_recycler_view),
+        ViewInteraction frameLayout = onView(
+                allOf(withId(R.id.fragment_container_step_list),
                         childAtPosition(
-                                allOf(withId(R.id.fragment_container_step_list),
-                                        childAtPosition(
-                                                IsInstanceOf.<View>instanceOf(android.widget.FrameLayout.class),
-                                                0)),
+                                childAtPosition(
+                                        withId(android.R.id.content),
+                                        0),
                                 0),
                         isDisplayed()));
-        recyclerView3.check(matches(isDisplayed()));
+        frameLayout.check(matches(isDisplayed()));
 
     }
 
