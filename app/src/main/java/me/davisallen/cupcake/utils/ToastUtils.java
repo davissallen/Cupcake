@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 public class ToastUtils {
 
-    static Toast sToast;
+    private static Toast sToast;
 
     public static void makeCustomToast(Context context, String message) {
         if (sToast != null) { sToast.cancel(); }
