@@ -1,8 +1,6 @@
 package me.davisallen.cupcake;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -25,11 +23,9 @@ public class IngredientsViewsFactory implements RemoteViewsService.RemoteViewsFa
     private Context mContext;
     private ArrayList<Ingredient> mIngredients;
 
-    public IngredientsViewsFactory(Context context, @Nullable Bundle recipeInfo) {
+    public IngredientsViewsFactory(Context context) {
         mContext = context;
-        if (recipeInfo != null) {
-            mIngredients = recipeInfo.getParcelableArrayList(RECIPE_INGREDIENTS);
-        }
+        getCurrentRecipeInfo();
     }
 
     @Override
@@ -39,7 +35,7 @@ public class IngredientsViewsFactory implements RemoteViewsService.RemoteViewsFa
 
     @Override
     public void onDataSetChanged() {
-
+        getCurrentRecipeInfo();
     }
 
     @Override
@@ -58,7 +54,7 @@ public class IngredientsViewsFactory implements RemoteViewsService.RemoteViewsFa
 
     @Override
     public RemoteViews getViewAt(int i) {
-        RemoteViews row=new RemoteViews(
+        RemoteViews row = new RemoteViews(
                 mContext.getPackageName(),
                 R.layout.row
         );
@@ -86,5 +82,13 @@ public class IngredientsViewsFactory implements RemoteViewsService.RemoteViewsFa
     @Override
     public boolean hasStableIds() {
         return true;
+    }
+
+    private void getCurrentRecipeInfo() {
+        if (RecipeDetailActivity.currentlySelectedRecipe != null) {
+            mIngredients = RecipeDetailActivity.currentlySelectedRecipe.getParcelableArrayList(RECIPE_INGREDIENTS);
+        } else {
+            mIngredients = null;
+        }
     }
 }

@@ -105,6 +105,9 @@ public class ViewRecipesActivity extends AppCompatActivity implements
         recipeDetail.putString(RECIPE_NAME, clickedRecipe.getName());
         recipeDetail.putParcelableArrayList(RECIPE_STEPS, clickedRecipe.getSteps());
         recipeDetail.putParcelableArrayList(RECIPE_INGREDIENTS, clickedRecipe.getIngredients());
+        Log.d(LOG_TAG, "Recipe name: " + clickedRecipe.getName());
+        Log.d(LOG_TAG, "Recipe steps: " + clickedRecipe.getSteps().toString());
+        Log.d(LOG_TAG, "Recipe ingredients: " + clickedRecipe.getIngredients().toString());
 
         Intent openRecipeDetailIntent = new Intent(this, RecipeDetailActivity.class);
         openRecipeDetailIntent.putExtra(EXTRA_RECIPE_DETAIL, recipeDetail);

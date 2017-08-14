@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -51,19 +50,22 @@ public class RecipeDetailActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle extraBundle;
 
         // get recipe info from received intent
         Intent receivedIntent = getIntent();
-        Bundle extraBundle = receivedIntent.getBundleExtra(EXTRA_RECIPE_DETAIL);
+        if (receivedIntent != null && receivedIntent.hasExtra(EXTRA_RECIPE_DETAIL)) {
+            extraBundle = receivedIntent.getBundleExtra(EXTRA_RECIPE_DETAIL);
+            currentlySelectedRecipe = extraBundle;
 
-        // set the currently selected recipe and update the widget
-        currentlySelectedRecipe = extraBundle;
-        updateWidget();
+            // set the currently selected recipe and update the widget
+            updateWidgets();
 
-        // assign values from recipe info from received intent
-        mRecipeName = extraBundle.getString(RECIPE_NAME);
-        mSteps = extraBundle.getParcelableArrayList(RECIPE_STEPS);
-        mIngredients = extraBundle.getParcelableArrayList(RECIPE_INGREDIENTS);
+            // assign values from recipe info from received intent
+            mRecipeName = extraBundle.getString(RECIPE_NAME);
+            mSteps = extraBundle.getParcelableArrayList(RECIPE_STEPS);
+            mIngredients = extraBundle.getParcelableArrayList(RECIPE_INGREDIENTS);
+        }
 
         // update the action bar with current recipe and provide up navigation
         updateSupportActionBar();
@@ -184,13 +186,13 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         }
     }
 
-    public void updateWidget() {
+    public void updateWidgets() {
         Intent intent = new Intent(this, WidgetProvider.class);
         intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-        int ids[] = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), WidgetProvider.class));
+        AppWidgetManager widgetManager = AppWidgetManager.getInstance(getApplication());
+        int ids[] = widgetManager.getAppWidgetIds(new ComponentName(getApplication(), WidgetProvider.class));
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
         sendBroadcast(intent);
-        Log.d(LOG_TAG, "all widget updated");
     }
 
     private void updateSupportActionBar() {

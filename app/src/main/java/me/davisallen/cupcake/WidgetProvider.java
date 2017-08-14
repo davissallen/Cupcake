@@ -5,11 +5,9 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import static me.davisallen.cupcake.ViewRecipesActivity.EXTRA_RECIPE_DETAIL;
 import static me.davisallen.cupcake.utils.JsonUtils.RECIPE_NAME;
 
 /**
@@ -32,16 +30,22 @@ public class WidgetProvider extends AppWidgetProvider {
                 hideIngredients(widget, context);
             }
             appWidgetManager.updateAppWidget(appWidgetId, widget);
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_ingredients_list_view);
         }
 
         super.onUpdate(context, appWidgetManager, appWidgetIds);
     }
 
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+    }
+
     private void showIngredients(RemoteViews remoteViews, Context context) {
         // Create service intent to open to recipe selected
         Intent svcIntent = new Intent(context, WidgetService.class);
-        svcIntent.putExtra(EXTRA_RECIPE_DETAIL, RecipeDetailActivity.currentlySelectedRecipe);
-        svcIntent.setData(Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
+//        svcIntent.putExtra(EXTRA_RECIPE_DETAIL, RecipeDetailActivity.currentlySelectedRecipe);
+//        svcIntent.setData(Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
 
         // update view with title and ingredients list
         String recipeName = RecipeDetailActivity.currentlySelectedRecipe.getString(RECIPE_NAME);

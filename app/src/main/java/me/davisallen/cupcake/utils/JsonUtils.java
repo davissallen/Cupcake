@@ -3,7 +3,6 @@ package me.davisallen.cupcake.utils;
 import android.util.Log;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -49,6 +48,7 @@ public class JsonUtils {
 
             // for each recipe in JSONArray
             JSONArray recipeArray = new JSONArray(httpResponse);
+
             for (int i = 0; i < recipeArray.length(); i++) {
                 JSONObject recipeObject = recipeArray.getJSONObject(i);
 
@@ -110,7 +110,7 @@ public class JsonUtils {
                 ));
             }
 
-        } catch (JSONException e) {
+        } catch (Exception e) {
             Log.e(LOG_TAG, "Could not parse JSON response from URL");
             e.printStackTrace();
         }
