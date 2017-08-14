@@ -5,8 +5,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,10 +41,11 @@ public class NetworkUtils {
         /*
          *  Make URL connection
          */
-        // TODO: Implement volley?
         HttpURLConnection urlConnection = null;
         try {
             urlConnection = (HttpURLConnection) recipeUrl.openConnection();
+            urlConnection.setConnectTimeout(5000);
+            urlConnection.setReadTimeout(10000);
         } catch (IOException e) {
             Log.w(LOG_TAG, "URL cannot make connection: " + recipeUrl);
             e.printStackTrace();
@@ -54,7 +56,7 @@ public class NetworkUtils {
          *  Get InputStream from HttpURLConnection
          */
         try {
-            InputStream in = urlConnection.getInputStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
             Scanner scanner = new Scanner(in);
             scanner.useDelimiter("\\A");
