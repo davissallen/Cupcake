@@ -17,7 +17,6 @@ public class UrlUtils {
 
     public static URL convertStringToURL(String string) {
         if (string == null || string.length() == 0) {
-            Log.d(LOG_TAG, "No video or thumbnail for this step");
             return null;
         }
 
