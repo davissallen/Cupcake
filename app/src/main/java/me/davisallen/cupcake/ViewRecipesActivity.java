@@ -117,6 +117,9 @@ public class ViewRecipesActivity extends AppCompatActivity implements
 
     @Override
     public Loader<ArrayList<Recipe>> onCreateLoader(int id, Bundle args) {
+
+        // TODO: Request network permissions at runtime
+
         if (NetworkUtils.isNetworkAvailable(this)) {
             return new ViewRecipesAsyncTaskLoader(this);
         } else {

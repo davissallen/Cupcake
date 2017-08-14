@@ -3,6 +3,7 @@ package me.davisallen.cupcake.pojo;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 /**
  * Package Name:   me.davisallen.cake
@@ -59,25 +60,26 @@ public class Step implements Parcelable {
         return description;
     }
 
-    private Uri getVideoUri() {
-        return Uri.parse(videoURL);
-    }
+    @Nullable
+    public Uri getVideoUri() {
 
-    private Uri getThumbnailURL() {
-        return Uri.parse(thumbnailURL);
-    }
-
-    public Uri getVideoOrThumbnailUri() {
-        if (videoURL != null && videoURL.length() > 0) {
-            return getVideoUri();
-        }
-
-        if (thumbnailURL != null && thumbnailURL.length() > 0) {
-            return getThumbnailURL();
+        if (videoURL != null) {
+            return Uri.parse(videoURL);
         }
 
         return null;
     }
+
+    @Nullable
+    public Uri getThumbnailUri() {
+
+        if (thumbnailURL != null) {
+            return Uri.parse(thumbnailURL);
+        }
+
+        return null;
+    }
+
 
     @Override
     public int describeContents() {

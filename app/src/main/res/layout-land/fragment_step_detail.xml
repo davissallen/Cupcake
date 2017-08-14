@@ -7,10 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-        android:id="@+id/player_view"
-        android:layout_width="667dp"
-        android:layout_height="323dp"
+
+
+    <FrameLayout
+        android:id="@+id/media_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="0dp"
@@ -19,7 +21,22 @@
         android:layout_marginRight="0dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="@+id/description_text_view"
-        android:layout_marginBottom="0dp" />
+        android:layout_marginBottom="0dp" >
+
+        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/player_view"
+            android:visibility="visible"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/thumbnail_view"
+            android:visibility="visible"
+            android:contentDescription="@string/thumbnail_image_of_recipe_step" />
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/short_description_text_view"

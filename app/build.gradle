@@ -52,7 +52,4 @@ dependencies {
     // for Picasso image downloading
     compile 'com.squareup.picasso:picasso:2.5.2'
 
-    // for Snackbar
-    compile 'com.android.support:design:26.0.0'
-
 }

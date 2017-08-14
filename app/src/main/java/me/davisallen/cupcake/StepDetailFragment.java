@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -25,6 +27,7 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,7 +39,9 @@ public class StepDetailFragment extends Fragment {
 
     private static final String LOG_TAG = StepDetailFragment.class.getSimpleName();
     private static final String PAUSED_POSITION = "paused_position";
+    @BindView(R.id.media_container) FrameLayout mMediaContainer;
     @BindView(R.id.player_view) SimpleExoPlayerView mPlayerView;
+    @BindView(R.id.thumbnail_view) ImageView mThumnbailView;
     @BindView(R.id.short_description_text_view) TextView mShortDescriptionTextView;
     @BindView(R.id.description_text_view) TextView mDescriptionTextView;
     @BindView(R.id.button_previous) Button mButtonPrevious;
@@ -51,10 +56,10 @@ public class StepDetailFragment extends Fragment {
     private int mCurrentPosition;
     private int mNumberOfSteps;
     private Uri mVideoUri;
+    private Uri mThumbnailUri;
     private long mSeekTime;
 
     public SimpleExoPlayer mPlayer;
-    private MediaSource mVideoSource;
 
     public interface NavButtonListener {
         void onButtonClick(int clickedItemId, int position, int numberOfSteps);
@@ -87,11 +92,22 @@ public class StepDetailFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // TODO (MAJOR): Refactor fragment to show a thumbnail image if it exists
+
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             mStep = getArguments().getParcelable(STEP_PARAM);
-            mVideoUri = mStep.getVideoOrThumbnailUri();
         }
+
+        if (mStep != null) {
+            mVideoUri = mStep.getVideoUri();
+            mThumbnailUri = mStep.getThumbnailUri();
+        } else {
+            mVideoUri = null;
+            mThumbnailUri = null;
+        }
+
         mSeekTime = 0;
         mContext = getContext();
         setRetainInstance(true);
@@ -113,24 +129,30 @@ public class StepDetailFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        // Video Uri
-        // We have to look at videoURL and thumbnailURL because the JSON entries are nonuniform
-        // and some have only a videoURL and others have only a thumbnailURL (exclusive) which both
-        // URLs point to videos.
-        if (mVideoUri != null) {
+
+        if (mVideoUri != null && mVideoUri.toString().length() > 0) {
+            showVideoHideThumbnail();
+
+            // set player view to player
             mPlayerView.setPlayer(mPlayer);
+
+            // if the device is in landscape and NOT a tablet, show vid full screen
             if (mContext.getResources().getBoolean(R.bool.isLandscape)) {
                 if (!mContext.getResources().getBoolean(R.bool.isTablet)) {
-                    showLandscapeView();
+                    showMediaFullScreen();
                 }
             } else {
-                showPortraitView();
+                showRegularView();
             }
 
+        } else if (mThumbnailUri != null && mThumbnailUri.toString().length() > 0) {
+            hideVideoShowThumbnail();
+            Picasso.with(mContext).load(mThumbnailUri).into(mThumnbailView);
         } else {
-            showPortraitView();
-            mPlayerView.setVisibility(View.GONE);
+            hideVideoShowThumbnail();
+            showRegularView();
         }
+
 
         mShortDescriptionTextView.setText(mStep.getShortDescription());
         mDescriptionTextView.setText(mStep.getDescription());
@@ -225,7 +247,7 @@ public class StepDetailFragment extends Fragment {
             ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
 
             // create the MediaSource object
-            mVideoSource = new ExtractorMediaSource(
+            MediaSource mVideoSource = new ExtractorMediaSource(
                     mVideoUri,
                     dataSourceFactory,
                     extractorsFactory,
@@ -257,20 +279,29 @@ public class StepDetailFragment extends Fragment {
         }
     }
 
-    private void showLandscapeView() {
-        mPlayerView.setVisibility(View.VISIBLE);
+    private void showMediaFullScreen() {
+        mMediaContainer.setVisibility(View.VISIBLE);
         mButtonPrevious.setVisibility(View.GONE);
         mButtonNext.setVisibility(View.GONE);
         mShortDescriptionTextView.setVisibility(View.GONE);
         mDescriptionTextView.setVisibility(View.GONE);
     }
 
-    private void showPortraitView()  {
-        mPlayerView.setVisibility(View.VISIBLE);
+    private void showRegularView()  {
+        mMediaContainer.setVisibility(View.VISIBLE);
         mButtonPrevious.setVisibility(View.VISIBLE);
         mButtonNext.setVisibility(View.VISIBLE);
         mShortDescriptionTextView.setVisibility(View.VISIBLE);
         mDescriptionTextView.setVisibility(View.VISIBLE);
     }
 
+    private void showVideoHideThumbnail() {
+        mPlayerView.setVisibility(View.VISIBLE);
+        mThumnbailView.setVisibility(View.GONE);
+    }
+
+    private void hideVideoShowThumbnail() {
+        mPlayerView.setVisibility(View.GONE);
+        mThumnbailView.setVisibility(View.VISIBLE);
+    }
 }
